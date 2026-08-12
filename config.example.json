@@ -1,0 +1,6 @@
+{
+    "bark_urls": [
+        { "name": "我的iPhone", "url": "https://api.day.app/YOUR_BARK_KEY" },
+        { "name": "备用设备",   "url": "https://api.day.app/ANOTHER_KEY" }
+    ]
+}

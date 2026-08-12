@@ -2,7 +2,7 @@
 BINARY=bond-bot
 OS_ARCH=`uname -m`
 
-build: armv7l aarch64 x86_64 i386
+build:   x86_64_macOS x86_64_linux 
 
 armv7l:
 	@mkdir -p ./release/armv7l
@@ -16,11 +16,18 @@ aarch64:
 	@env GOOS=linux GOARCH=arm64 go build -ldflags="-s -w" -o ./release/aarch64/${BINARY} ./*.go
 	@cp ./config.json ./release/aarch64
 
-x86_64:
-	@mkdir -p ./release/x86_64
-	@rm -rf  ./release/x86_64/*
-	@env GOOS=linux GOARCH=amd64 go build -ldflags="-s -w" -o ./release/x86_64/${BINARY} ./*.go
-	@cp ./config.json ./release/x86_64
+x86_64_macOS:
+	mkdir -p ./release/x86_64_macOS
+	rm -rf  ./release/x86_64_macOS/*
+	env GOOS=darwin GOARCH=amd64 go build -ldflags="-s -w" -o ./release/x86_64_macOS/${BINARY}_macOS ./*.go
+	cp ./config.json ./release/x86_64_macOS
+
+x86_64_linux:
+	mkdir -p ./release/x86_64_linux
+	rm -rf  ./release/x86_64_linux/*
+	env GOOS=linux GOARCH=amd64 go build -ldflags="-s -w" -o ./release/x86_64_linux/${BINARY}_linux ./*.go
+	cp ./config.json ./release/x86_64_linux
+
 
 i386:
 	@mkdir -p ./release/i386

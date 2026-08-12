@@ -3,20 +3,28 @@ package main
 import (
 	"bytes"
 	"encoding/json"
+	"fmt"
 	"time"
 )
 
-func BondParser(data []byte) any {
+// BondParser 去掉东方财富返回的 JSONP 前缀(`_(...)`)后解析为通用结构。
+// 之前这里丢弃了 Decode 的错误,导致数据源返回错误页(非 JSONP)时静默得到 nil;
+// 现在把错误返回,让上层能区分「解析失败」与「今天没有可转债」。
+func BondParser(data []byte) (any, error) {
 	var bond any
-	json.NewDecoder(&JsonpWrapper{
+	err := json.NewDecoder(&JsonpWrapper{
 		Underlying: bytes.NewBuffer(data),
 		Prefix:     "_",
 	}).Decode(&bond)
-
-	return bond
+	if err != nil {
+		return nil, fmt.Errorf("解析 JSONP/JSON 失败: %w", err)
+	}
+	return bond, nil
 }
 
-func BondFilter(data any) string {
+// BondFilter 从解析结果中筛出今天/明天/后天可申购或预约的可转债。
+// 返回 error 表示数据结构无法解析(与「今天没有可转债」区分开)。
+func BondFilter(data any) (string, error) {
 	type Bonds struct {
 		Result struct {
 			Data []struct {
@@ -31,10 +39,14 @@ func BondFilter(data any) string {
 		message string = ""
 		bonds   Bonds
 	)
-	json.Unmarshal(func(data any) []byte {
-		b, _ := json.Marshal(data)
-		return b
-	}(data), &bonds)
+
+	b, err := json.Marshal(data)
+	if err != nil {
+		return "", fmt.Errorf("重新编码数据失败: %w", err)
+	}
+	if err := json.Unmarshal(b, &bonds); err != nil {
+		return "", fmt.Errorf("解析可转债数据结构失败: %w", err)
+	}
 
 	for _, v := range bonds.Result.Data {
 		// 匹配今天
@@ -54,5 +66,5 @@ func BondFilter(data any) string {
 	if len(message) == 0 {
 		message = "今天没有可转债供申购或预约"
 	}
-	return message
+	return message, nil
 }
