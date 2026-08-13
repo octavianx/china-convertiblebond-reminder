@@ -9,3 +9,6 @@ config.json
 
 # 规划文档放在仓库外(顶层私有区),不入库
 docs/
+
+# 本地测试(含真实设备 key,不公开;逻辑同 parser_test.go 那套)
+config_test.go
