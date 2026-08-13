@@ -1,6 +1,10 @@
 {
-    "bark_urls": [
-        { "name": "我的iPhone", "url": "https://api.day.app/YOUR_BARK_KEY" },
-        { "name": "备用设备",   "url": "https://api.day.app/ANOTHER_KEY" }
+    "servers": {
+        "self":     "https://bark.example.com",
+        "official": "https://api.day.app"
+    },
+    "devices": [
+        { "name": "我的设备", "server": "self",     "key": "YOUR_SELFHOSTED_KEY" },
+        { "name": "家人",     "server": "official", "key": "FAMILY_OFFICIAL_KEY" }
     ]
 }
